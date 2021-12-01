@@ -36,7 +36,8 @@ namespace client
 
             // Connect to the remote server. The IP address and port # could be
             // picked up from a settings file.
-            _client.Connect("192.168.0.189", 3005);
+            _client.Connect("34.69.196.167", 3005);
+            //192.168.0.189
 
             // Start reading the socket and receive any incoming messages
             _client.GetStream().BeginRead(_buffer, 0, _buffer.Length, Server_MessageRecieved, null);

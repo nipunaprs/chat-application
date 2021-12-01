@@ -18,10 +18,12 @@ namespace client
         byte[] _buffer = new byte[1024];
         static Encoding enc8 = Encoding.UTF8;
         bool firstmsgsent = false;
+        bool closed = false;
 
         public Form1()
         {
             InitializeComponent();
+            //Add a message box that tells what to do
 
             _client = new TcpClient();
 
@@ -43,7 +45,7 @@ namespace client
 
         private void Server_MessageRecieved(IAsyncResult ar)
         {
-            if(ar.IsCompleted)
+            if(ar.IsCompleted && closed == false)
             {
                 //recieve message
                 var bytesIn = _client.GetStream().EndRead(ar);
@@ -55,7 +57,15 @@ namespace client
 
                     if (firstmsgsent == false)
                     {
-                        label1.Text = "Number of chatrooms is: " + str;
+                        //label1.Text = "Number of chatrooms is: " + str;
+                        int number = Int32.Parse(str);
+                        
+                        for(int i = 0; i < number; i++)
+                        {
+                            int index = i + 1;
+                            comboBox1.Items.Add(index);
+                        }
+                        comboBox1.SelectedIndex = 0;
                         firstmsgsent = true;
                     }
                     else
@@ -79,13 +89,40 @@ namespace client
 
         private void button1_Click(object sender, EventArgs e)
         {
-            var msg = Encoding.UTF8.GetBytes(textBox1.Text);
+            var chatroomNum = comboBox1.SelectedItem;
+            var msg = Encoding.UTF8.GetBytes(chatroomNum + textBox2.Text + ": " + textBox1.Text);
+            
             _client.GetStream().Write(msg);
             //removed stuff below from write
             //0, msg.Length
             textBox1.Text = "";
             textBox1.Focus();
 
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            //Run once a new room a selected and change room is pressed
+            var chatroomNum = comboBox1.SelectedItem;
+            var msg = Encoding.UTF8.GetBytes("/" + chatroomNum);
+
+            //Send to server
+            _client.GetStream().Write(msg);
+
+            listBox1.Items.Clear();
+            listBox1.Items.Add("Welcome to chatroom " + chatroomNum);
+
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            string username = textBox2.Text;
+            var msg = Encoding.UTF8.GetBytes(username + " has closed messenger app!");
+            _client.GetStream().Write(msg);
+            closed = true;
+            _client.GetStream().Close();
+            _client.Close();
+            MessageBox.Show("Connection Closed. Please exit app.");
         }
     }
 }

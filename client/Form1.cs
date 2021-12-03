@@ -40,7 +40,7 @@ namespace client
 
             //use this ip if running locally --> 192.168.0.189
             //use this ip if running on Google Server --> connect using external ip at that time
-            _client.Connect("192.168.0.189", 3005);
+            _client.Connect("104.197.186.41", 3005);
             
             
 
